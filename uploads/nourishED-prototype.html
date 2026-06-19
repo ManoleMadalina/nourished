@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>nourishED — Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --g1:#16a34a;
+    --g2:#10b981;
+    --g3:#0d9488;
+    --soft:#ecfdf5;
+    --soft2:#f0fdfa;
+    --ink:#0f172a;
+    --muted:#64748b;
+    --border:#e2e8f0;
+    --amber:#f59e0b;
+    --amber-soft:#fffbeb;
+    --green-soft:#f0fdf4;
+    --blue:#3b82f6;
+    --blue-soft:#eff6ff;
+    --purple:#8b5cf6;
+    --purple-soft:#f5f3ff;
+    --radius:16px;
+    --shadow:0 1px 2px rgba(15,23,42,.04), 0 10px 28px rgba(15,23,42,.07);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Inter',system-ui,sans-serif;
+    color:var(--ink);
+    background:#f6faf9;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.brand{font-family:'Poppins',system-ui,sans-serif;}
+  button{font-family:inherit;}
+  :focus-visible{outline:2px solid var(--g2); outline-offset:2px; border-radius:6px;}
+  @media (prefers-reduced-motion: reduce){ *{transition:none !important; animation:none !important;} }
+
+  .grad-text{
+    background-image:linear-gradient(120deg,var(--g1),var(--g2),var(--g3));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .grad-bg{ background-image:linear-gradient(120deg,var(--g1),var(--g2),var(--g3)); }
+
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:.4rem;
+    border-radius:12px; padding:.65rem 1.1rem; font-weight:600; font-size:.92rem;
+    cursor:pointer; border:1px solid transparent; transition:transform .12s ease, filter .12s ease, background .12s ease;
+  }
+  .btn:active{transform:translateY(1px);}
+  .btn-primary{ background-image:linear-gradient(120deg,var(--g1),var(--g2)); color:#fff; box-shadow:var(--shadow);}
+  .btn-primary:hover{filter:brightness(1.06); transform:translateY(-1px);}
+  .btn-ghost{ background:#fff; border:1px solid var(--border); color:var(--ink); }
+  .btn-ghost:hover{ background:#f8fafc; }
+  .btn-sm{padding:.4rem .8rem; font-size:.82rem; border-radius:9px;}
+  .btn-block{width:100%;}
+
+  .card{ background:#fff; border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); padding:1.4rem 1.6rem; }
+  .pill{ display:inline-flex; align-items:center; gap:.3rem; font-size:.72rem; font-weight:700; padding:.25rem .6rem; border-radius:999px; letter-spacing:.02em; text-transform:uppercase;}
+  .pill-preview{ background:var(--amber-soft); color:#92400e; border:1px solid #fde68a; }
+
+  /* ---------- Logo mark ---------- */
+  .logo-row{ display:flex; align-items:center; gap:.55rem; }
+  .logo-icon{ flex-shrink:0; display:inline-flex; align-items:center; justify-content:center; border-radius:9px; background-image:linear-gradient(135deg,var(--g1),var(--g3)); box-shadow:var(--shadow); }
+  .logo-text-compact{ font-weight:700; color:#1e293b; font-size:1.15rem; }
+
+  /* ---------- Login / role select ---------- */
+  #login-screen{
+    min-height:100vh; display:flex; flex-direction:column; align-items:center;
+    padding:3rem 1.25rem 4rem;
+    background:radial-gradient(circle at 20% 0%, #f0fdfa 0%, #f6faf9 45%, #f6faf9 100%);
+  }
+  .login-back{ align-self:flex-start; margin-left:.5rem; color:var(--muted); font-size:.85rem; text-decoration:none; display:flex; align-items:center; gap:.3rem; background:none; border:none; cursor:pointer; padding:0;}
+  .login-logo{ font-size:2.6rem; font-weight:700; margin:.3rem 0 .3rem; }
+  .login-sub1{ color:#334155; font-size:1.05rem; margin:0; }
+  .login-sub2{ color:var(--muted); font-size:.9rem; margin:.2rem 0 1.2rem; }
+  .role-panel{ width:100%; max-width:880px; background:#fff; border-radius:24px; border:1px solid var(--border); box-shadow:var(--shadow); padding:2rem; }
+  .role-panel h2{ margin:0 0 .15rem; font-size:1.15rem;}
+  .role-panel p.lede{ margin:0 0 1.4rem; color:var(--muted); font-size:.88rem;}
+  .role-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; }
+  @media (max-width:720px){ .role-grid{grid-template-columns:1fr 1fr;} }
+  @media (max-width:480px){ .role-grid{grid-template-columns:1fr;} }
+  .role-card{ border:1px solid var(--border); border-radius:14px; padding:1.4rem 1rem 1.2rem; text-align:center; background:#fff; display:flex; flex-direction:column; align-items:center; }
+  .role-icon{ width:56px; height:56px; border-radius:50%; background:var(--green-soft); display:flex; align-items:center; justify-content:center; font-size:1.6rem; margin-bottom:.7rem;}
+  .role-name{ font-weight:700; font-size:.98rem; margin:0;}
+  .role-label{ color:var(--muted); font-size:.82rem; margin:.1rem 0 .9rem;}
+
+  /* ---------- Curriculum Overview (public page) ---------- */
+  #curriculum-screen{ min-height:100vh; background:#f6faf9; }
+  .cur-header{ background:#fff; border-bottom:1px solid var(--border); padding:1rem 1.6rem; display:flex; align-items:center; justify-content:space-between;}
+  .cur-hero{ background-image:linear-gradient(115deg,#0f766e,#1d4ed8); color:#fff; padding:3rem 1.5rem; text-align:center;}
+  .cur-hero h1{ font-size:2.1rem; margin:0 0 .7rem;}
+  .cur-hero p{ max-width:680px; margin:0 auto; opacity:.92; font-size:.98rem; line-height:1.5;}
+  .cur-body{ max-width:1080px; margin:0 auto; padding:1.6rem 1.4rem 3rem;}
+  .band-tabs{ display:flex; background:#eef2f1; border-radius:999px; padding:.3rem; margin-bottom:1.4rem; overflow-x:auto;}
+  .band-tab{ flex:1; white-space:nowrap; border:none; background:transparent; padding:.65rem 1rem; border-radius:999px; font-weight:600; font-size:.85rem; color:var(--muted); cursor:pointer;}
+  .band-tab.active{ background:#fff; color:var(--ink); box-shadow:0 1px 3px rgba(15,23,42,.12);}
+  .band-badge{ display:inline-block; background:#fee2e2; color:#b91c1c; font-size:.7rem; font-weight:700; padding:.25rem .6rem; border-radius:999px; margin-bottom:.6rem; text-transform:uppercase; letter-spacing:.02em;}
+  .cur-lesson-card{ border:1px solid var(--border); border-radius:14px; padding:1.1rem 1.3rem; background:#fff; margin-bottom:.9rem;}
+  .cur-lesson-meta{ display:flex; justify-content:space-between; color:var(--muted); font-size:.78rem; margin-bottom:.4rem;}
+  .cur-module-tag{ display:inline-flex; align-items:center; gap:.3rem; background:var(--soft); color:var(--g3); font-size:.76rem; font-weight:600; padding:.25rem .6rem; border-radius:8px; margin-top:.6rem;}
+
+  /* ---------- App shell ---------- */
+  #topbar{ background:#fff; border-bottom:1px solid var(--border); padding:.9rem 1.5rem; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:5;}
+  .topbar-left{ display:flex; align-items:center; gap:.6rem; font-size:1.15rem; }
+  .topbar-left .brand{ font-weight:700; }
+  .topbar-left .sep{ color:var(--border); }
+  .topbar-left .who{ color:var(--muted); font-size:.92rem; font-weight:500;}
+  #content{ max-width:1080px; margin:0 auto; padding:1.6rem 1.4rem 3rem; }
+
+  .stat-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-bottom:1.2rem;}
+  @media (max-width:760px){ .stat-grid{grid-template-columns:1fr 1fr;} }
+  .stat-card{ background:#fff; border:1px solid var(--border); border-radius:var(--radius); padding:1.1rem 1.2rem; box-shadow:var(--shadow); position:relative; overflow:hidden;}
+  .stat-card .lbl{ color:var(--muted); font-size:.78rem; font-weight:600; text-transform:uppercase; letter-spacing:.03em;}
+  .stat-card .val{ font-size:1.7rem; font-weight:700; margin-top:.25rem;}
+
+  .section-title{ display:flex; align-items:center; gap:.5rem; font-size:1.05rem; font-weight:700; margin:0 0 .2rem;}
+  .section-sub{ color:var(--muted); font-size:.85rem; margin:0 0 1rem;}
+
+  .tabs{ display:inline-flex; background:#eef2f1; border-radius:999px; padding:.25rem; gap:.2rem; margin-bottom:1.2rem; flex-wrap:wrap;}
+  .tab-btn{ border:none; background:transparent; padding:.5rem 1rem; border-radius:999px; font-weight:600; font-size:.86rem; color:var(--muted); cursor:pointer;}
+  .tab-btn.active{ background:#fff; color:var(--ink); box-shadow:0 1px 3px rgba(15,23,42,.12);}
+
+  .progress-track{ height:10px; background:#e5eae8; border-radius:999px; overflow:hidden;}
+  .progress-fill{ height:100%; background-image:linear-gradient(120deg,var(--g1),var(--g2)); border-radius:999px; transition:width .4s ease;}
+  .progress-row{ display:flex; justify-content:space-between; font-size:.85rem; font-weight:600; margin-bottom:.4rem;}
+
+  /* games hub */
+  .game-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:.9rem;}
+  @media (max-width:760px){ .game-grid{grid-template-columns:1fr 1fr;} }
+  .game-tile{ border:1px solid var(--border); border-radius:14px; background:#fff; padding:1.1rem .8rem; text-align:center; cursor:pointer; transition:transform .12s ease, box-shadow .12s ease;}
+  .game-tile:hover{ transform:translateY(-2px); box-shadow:var(--shadow);}
+  .game-tile .emoji{ font-size:1.8rem;}
+  .game-tile .gname{ font-weight:700; font-size:.92rem; margin-top:.3rem;}
+  .game-tile .gdesc{ color:var(--muted); font-size:.76rem; margin-top:.15rem;}
+
+  .tray{ display:flex; flex-wrap:wrap; gap:.6rem; padding:1rem; border:1px dashed var(--border); border-radius:14px; background:#fafdfc; min-height:64px;}
+  .chip{ border:1px solid var(--border); background:#fff; border-radius:12px; padding:.5rem .8rem; font-weight:600; font-size:.85rem; cursor:grab; display:flex; align-items:center; gap:.4rem; user-select:none;}
+  .chip.selected{ border-color:var(--g2); box-shadow:0 0 0 3px var(--soft);}
+  .chip.placed{ opacity:.45; cursor:default;}
+  .zones{ display:grid; grid-template-columns:repeat(5,1fr); gap:.7rem; margin-top:1rem;}
+  @media (max-width:760px){ .zones{grid-template-columns:1fr 1fr;} }
+  .zone{ border:2px dashed #cbd5e1; border-radius:14px; min-height:130px; padding:.7rem; background:#fff; text-align:center;}
+  .zone h4{ margin:.1rem 0 .6rem; color:var(--g3); font-size:.85rem;}
+  .zone.wrong{ animation:shake .35s; border-color:var(--red,#ef4444); background:#fef2f2;}
+  @keyframes shake{ 10%,90%{transform:translateX(-2px);} 20%,80%{transform:translateX(3px);} 30%,50%,70%{transform:translateX(-5px);} 40%,60%{transform:translateX(5px);} }
+  .zone-item{ font-size:.8rem; background:var(--green-soft); border-radius:8px; padding:.25rem .4rem; margin-bottom:.3rem;}
+
+  .quiz-box{ border:1px solid var(--border); border-radius:14px; padding:1.4rem; background:#fff;}
+  .opt{ display:block; width:100%; text-align:left; padding:.85rem 1rem; border:1px solid var(--border); border-radius:12px; margin-bottom:.6rem; background:#fff; font-weight:600; cursor:pointer; font-size:.92rem;}
+  .opt.correct{ background:var(--green-soft); border-color:var(--g2);}
+  .opt.incorrect{ background:#fef2f2; border-color:#fca5a5;}
+  .feedback{ border-radius:12px; padding:.9rem 1rem; margin-top:.6rem; font-size:.88rem;}
+  .feedback.ok{ background:var(--green-soft); color:#166534;}
+  .feedback.bad{ background:#fef2f2; color:#991b1b;}
+
+  .plate-zone{ border:2px dashed #cbd5e1; border-radius:18px; min-height:120px; padding:1rem; display:flex; flex-wrap:wrap; gap:.5rem; align-items:center; justify-content:center; color:var(--muted); font-size:.88rem; background:#fff;}
+  .goal-row{ display:flex; gap:.5rem; flex-wrap:wrap; margin:1rem 0;}
+  .goal-chip{ background:var(--soft); border-radius:999px; padding:.35rem .8rem; font-size:.8rem; font-weight:700; color:var(--g3); }
+  .goal-chip.done{ background-image:linear-gradient(120deg,var(--g1),var(--g2)); color:#fff;}
+  .food-pick-grid{ display:grid; grid-template-columns:repeat(6,1fr); gap:.6rem; margin-top:1rem;}
+  @media (max-width:760px){ .food-pick-grid{grid-template-columns:repeat(3,1fr);} }
+  .food-pick{ border:1px solid var(--border); border-radius:12px; background:#fff; padding:.7rem .4rem; text-align:center; cursor:pointer; font-size:.82rem; font-weight:600;}
+  .food-pick small{ display:block; color:var(--muted); font-weight:500; font-size:.7rem; margin-top:.15rem;}
+  .food-pick:hover{ background:#fafdfc;}
+
+  .sm-cols{ display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:1rem;}
+  .sm-card{ border:1px solid var(--border); border-radius:12px; padding:.8rem 1rem; background:#fff; font-weight:600; font-size:.88rem; cursor:pointer; margin-bottom:.6rem; text-align:left;}
+  .sm-card.selected{ border-color:var(--g2); box-shadow:0 0 0 3px var(--soft);}
+  .sm-card.matched{ background:var(--green-soft); border-color:var(--g2); opacity:.6; cursor:default;}
+  .sm-card.wrong{ background:#fef2f2; border-color:#fca5a5;}
+
+  .alert-box{ border-radius:12px; padding:.85rem 1rem; margin-bottom:.7rem; font-size:.86rem; display:flex; gap:.6rem;}
+  .alert-warn{ background:var(--amber-soft); color:#92400e;}
+  .alert-good{ background:var(--green-soft); color:#166534;}
+
+  table.tbl{ width:100%; border-collapse:collapse; font-size:.88rem;}
+  table.tbl th{ text-align:left; color:var(--muted); font-weight:600; font-size:.76rem; text-transform:uppercase; letter-spacing:.03em; padding:.5rem .6rem; border-bottom:1px solid var(--border);}
+  table.tbl td{ padding:.7rem .6rem; border-bottom:1px solid #f1f5f4;}
+  .status-pill{ font-size:.74rem; font-weight:700; padding:.2rem .6rem; border-radius:999px;}
+  .status-ok{ background:var(--green-soft); color:#166534;}
+  .status-needs{ background:var(--amber-soft); color:#92400e;}
+  .detail-row td{ background:#fafdfc; font-size:.82rem; color:#334155;}
+
+  .lesson-row{ margin-bottom:1rem;}
+  .lesson-row .top{ display:flex; justify-content:space-between; font-size:.9rem; margin-bottom:.3rem;}
+  .lesson-row .meta{ color:var(--muted); font-size:.78rem;}
+
+  .insight{ border-radius:14px; padding:1rem 1.1rem; margin-bottom:.8rem; border-left:5px solid;}
+  .insight h4{ margin:0 0 .3rem; font-size:.92rem;}
+  .insight p{ margin:0; font-size:.85rem; color:#334155;}
+  .insight.focus{ background:var(--blue-soft); border-color:var(--blue);}
+  .insight.success{ background:var(--green-soft); border-color:var(--g2);}
+  .insight.tip{ background:var(--purple-soft); border-color:var(--purple);}
+  .insight.alertc{ background:var(--amber-soft); border-color:var(--amber);}
+
+  .daily-card{ border:1px solid var(--border); border-radius:14px; padding:1.1rem 1.2rem; margin-bottom:1rem; background:#fff;}
+  .daily-card.learning{ border-color:var(--blue);}
+  .daily-card.done{ border-color:var(--g2);}
+  .badge{ font-size:.7rem; font-weight:700; padding:.2rem .55rem; border-radius:999px; margin-right:.4rem;}
+  .badge-blue{ background:var(--blue-soft); color:#1d4ed8;}
+  .badge-green{ background:var(--green-soft); color:#166534;}
+  .badge-gray{ background:#f1f5f4; color:var(--muted);}
+  .takeaway-box{ background:#f8fafc; border-radius:10px; padding:.7rem .9rem; margin:.6rem 0; font-size:.85rem;}
+  .takeaway-box ul{ margin:.3rem 0 0; padding-left:1.1rem;}
+
+  .mastery-row{ margin-bottom:.9rem;}
+  .mastery-row .top{ display:flex; justify-content:space-between; font-size:.86rem; font-weight:600; margin-bottom:.3rem;}
+  .mastery-note{ font-size:.76rem; color:var(--amber); margin-top:.2rem;}
+
+  .bars{ display:flex; align-items:flex-end; gap:.8rem; height:140px; margin:1rem 0;}
+  .bar-group{ flex:1; display:flex; flex-direction:column; align-items:center; gap:.25rem; height:100%; justify-content:flex-end;}
+  .bar-pair{ display:flex; gap:3px; align-items:flex-end; height:100%;}
+  .bar{ width:14px; border-radius:4px 4px 0 0;}
+  .bar.min{ background:var(--g2);}
+  .bar.score{ background:var(--blue);}
+  .bar-day{ font-size:.72rem; color:var(--muted); margin-top:.3rem;}
+
+  .achievement{ display:flex; gap:.7rem; align-items:flex-start; border-radius:12px; padding:.8rem 1rem; margin-bottom:.6rem;}
+  .empty-state{ text-align:center; color:var(--muted); padding:2.5rem 1rem; font-size:.9rem;}
+
+  .legend{ display:flex; gap:1rem; font-size:.78rem; color:var(--muted); margin-top:.4rem;}
+  .legend span{ display:inline-flex; align-items:center; gap:.3rem;}
+  .dot{ width:8px; height:8px; border-radius:50%; display:inline-block;}
+
+  .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:1rem;}
+  @media (max-width:760px){ .grid2{grid-template-columns:1fr;} }
+
+  .center-msg{ text-align:center; padding:2.5rem 1rem;}
+  .big-emoji{ font-size:2.6rem;}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* ---------------------------------------------------------
+   DATA
+--------------------------------------------------------- */
+const ROLES = [
+  {key:'student', icon:'🎓', name:'Emma Johnson', label:'Student', sub:'Grade 5'},
+  {key:'teacher', icon:'👥', name:'Ms. Sarah Williams', label:'Teacher'},
+  {key:'parent', icon:'👤', name:'Robert Johnson', label:'Parent'},
+  {key:'schoolAdmin', icon:'🏫', name:'Dr. Michael Chen', label:'School Administrator'},
+  {key:'districtAdmin', icon:'🏛️', name:'Dr. Patricia Martinez', label:'District Administrator'},
+];
+
+const FOOD_SORT_ITEMS = [
+  {id:'broccoli', name:'Broccoli', emoji:'🥦', group:'Vegetables'},
+  {id:'rice', name:'Rice', emoji:'🍚', group:'Grains'},
+  {id:'carrot', name:'Carrot', emoji:'🥕', group:'Vegetables'},
+  {id:'banana', name:'Banana', emoji:'🍌', group:'Fruits'},
+  {id:'apple', name:'Apple', emoji:'🍎', group:'Fruits'},
+  {id:'chicken', name:'Chicken', emoji:'🍗', group:'Protein'},
+  {id:'milk', name:'Milk', emoji:'🥛', group:'Dairy'},
+  {id:'egg', name:'Egg', emoji:'🥚', group:'Protein'},
+  {id:'bread', name:'Bread', emoji:'🍞', group:'Grains'},
+  {id:'cheese', name:'Cheese', emoji:'🧀', group:'Dairy'},
+];
+const GROUPS = ['Fruits','Vegetables','Grains','Protein','Dairy'];
+
+const TRIVIA_QUESTIONS = [
+  {q:'Which food group does an apple belong to?', options:['Fruits','Vegetables','Grains','Dairy'], answer:'Fruits', explain:'Apples are fruits! They grow on trees and have seeds inside.'},
+  {q:'Which food group does broccoli belong to?', options:['Fruits','Vegetables','Grains','Protein'], answer:'Vegetables', explain:'Broccoli is a vegetable, full of vitamins and fiber.'},
+  {q:'Which food group does chicken belong to?', options:['Protein','Dairy','Grains','Fruits'], answer:'Protein', explain:'Chicken is a great source of protein for strong muscles.'},
+  {q:'Which food group does milk belong to?', options:['Dairy','Fruits','Grains','Vegetables'], answer:'Dairy', explain:'Milk is a dairy food, rich in calcium for strong bones.'},
+];
+
+const PLATE_ITEMS = [
+  {id:'broccoli', name:'Broccoli', emoji:'🥦', group:'vegetables'},
+  {id:'apple', name:'Apple', emoji:'🍎', group:'fruits'},
+  {id:'bread', name:'Bread', emoji:'🍞', group:'grains'},
+  {id:'chicken', name:'Chicken', emoji:'🍗', group:'protein'},
+  {id:'milk', name:'Milk', emoji:'🥛', group:'dairy'},
+  {id:'banana', name:'Banana', emoji:'🍌', group:'fruits'},
+];
+const PLATE_GOALS = ['vegetables','fruits','grains','protein','dairy'];
+
+const SPEED_PAIRS = [
+  {id:'carrot', food:'Carrot 🥕', benefit:'Good for your eyes'},
+  {id:'milk', food:'Milk 🥛', benefit:'Builds strong bones'},
+  {id:'banana', food:'Banana 🍌', benefit:'Gives quick energy'},
+  {id:'fish', food:'Fish 🐟', benefit:'Boosts brain power'},
+  {id:'orange', food:'Orange 🍊', benefit:'Fights off colds'},
+];
+
+const LESSONS = [
+  {title:'Hello, Healthy Foods!', grade:'Kindergarten', unit:'My First Foods', pct:82, duration:'15 min'},
+  {title:'Food Groups Rainbow', grade:'Grade 1', unit:'Nutrition Basics', pct:74},
+  {title:'MyPlate Adventure', grade:'Grade 2', unit:'Balanced Nutrition', pct:73},
+  {title:'Sugar Detectives', grade:'Grade 3', unit:'Food Labels', pct:75},
+  {title:'Energy Balance & Physical Activity', grade:'Grade 6', unit:'Energy Balance', pct:null},
+];
+
+const STUDENTS = [
+  {name:'Emma J.', lessons:'4/6', score:92, last:'2026-02-26', status:'On Track', strength:'Food Groups (95% mastery)', review:'Energy Balance (65% mastery)'},
+  {name:'Lucas M.', lessons:'3/6', score:85, last:'2026-02-25', status:'Needs Support', strength:'Balanced Nutrition', review:'Food Labels lesson'},
+  {name:'Sophia K.', lessons:'4/6', score:95, last:'2026-02-27', status:'On Track', strength:'Digestion', review:'—'},
+  {name:'Noah P.', lessons:'2/6', score:78, last:'2026-02-24', status:'Needs Support', strength:'Food Sorting game', review:'Reading comprehension'},
+  {name:'Olivia R.', lessons:'3/6', score:88, last:'2026-02-26', status:'Needs Support', strength:'MyPlate Builder game', review:'Sugar Detectives lesson'},
+];
+
+const AI_INSIGHTS = [
+  {type:'focus', title:'Focus Area: Sugar Detectives Lesson', body:'Students are showing lower engagement with the Sugar Detectives lesson. Consider using the interactive food label scanner activity to boost engagement.'},
+  {type:'success', title:'Success Story: MyPlate Adventure', body:'Your class scored 15% above district average on the MyPlate lesson! Your teaching approach is working well.'},
+  {type:'tip', title:'Differentiation Tip', body:'Emma, Sophia, and Lucas are ready for advanced content. Consider assigning them the grade 6 Energy Balance lesson as enrichment.'},
+  {type:'alertc', title:'Intervention Needed', body:'Noah P. has been inactive for 3 days and is struggling with comprehension. Schedule a one-on-one check-in or assign peer support.'},
+];
+
+const MASTERY = [
+  {topic:'Food Groups', pct:95},
+  {topic:'Balanced Nutrition', pct:88},
+  {topic:'Digestion', pct:92},
+  {topic:'Energy Balance', pct:65, note:'Consider reviewing this topic together at home'},
+];
+
+const WEEK_ACTIVITY = [
+  {day:'Mon', min:20, score:80},
+  {day:'Tue', min:15, score:60},
+  {day:'Wed', min:24, score:95},
+  {day:'Thu', min:0, score:0},
+  {day:'Fri', min:24, score:95},
+  {day:'Sat', min:0, score:0},
+  {day:'Sun', min:0, score:0},
+];
+
+/* ---------------------------------------------------------
+   STATE
+--------------------------------------------------------- */
+let S = {
+  role: null,
+  publicPage: null,
+  curBand: 'k',
+  studentGame: null,
+  teacherTab: 'overview',
+  parentTab: 'progress',
+  expandedStudent: null,
+  fs: null,   // food sorting
+  tq: null,   // trivia
+  mp: null,   // myplate
+  sm: null,   // speed match
+};
+let smTimer = null;
+
+function render(){
+  const app = document.getElementById('app');
+  if(S.publicPage === 'curriculum'){ app.innerHTML = curriculumPage(); return; }
+  app.innerHTML = S.role ? appShell() : loginScreen();
+}
+
+function loginAs(roleKey){
+  S.role = roleKey;
+  resetGames();
+  render();
+}
+function logout(){
+  stopSpeedMatchTimer();
+  S = {role:null, publicPage:null, curBand:'k', studentGame:null, teacherTab:'overview', parentTab:'progress', expandedStudent:null, fs:null, tq:null, mp:null, sm:null};
+  render();
+}
+function resetGames(){ S.studentGame=null; S.fs=null; S.tq=null; S.mp=null; stopSpeedMatchTimer(); S.sm=null; }
+
+/* ---------------------------------------------------------
+   LOGO MARK (icon + wordmark, confirmed from Curriculum Overview screenshot)
+--------------------------------------------------------- */
+function logoIcon(size){
+  size = size || 32;
+  return `<span class="logo-icon" style="width:${size}px; height:${size}px;">
+    <svg width="${size*0.58}" height="${size*0.58}" viewBox="0 0 24 24" fill="none">
+      <path d="M12 21c0-5 3-8 8-9-1 5-3 9-8 9z" fill="#fff"/>
+      <path d="M12 21c0-6-3.5-9.5-9-10 1 6 4 10 9 10z" fill="#fff" opacity=".85"/>
+      <path d="M12 21V11" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/>
+    </svg>
+  </span>`;
+}
+function showCurriculum(){ S.publicPage='curriculum'; S.curBand='k'; render(); }
+function backToHomeFromCur(){ S.publicPage=null; render(); }
+function setCurBand(key){ S.curBand=key; render(); }
+
+/* ---------------------------------------------------------
+   LOGIN SCREEN
+--------------------------------------------------------- */
+function loginScreen(){
+  const cards = ROLES.map(r => `
+    <div class="role-card">
+      <div class="role-icon">${r.icon}</div>
+      <p class="role-name">${r.name}</p>
+      <p class="role-label">${r.label}${r.sub ? '<br>'+r.sub : ''}</p>
+      <button class="btn btn-primary btn-block btn-sm" onclick="loginAs('${r.key}')">Login as ${r.label}</button>
+    </div>`).join('');
+
+  return `
+  <div id="login-screen">
+    <a class="login-back" href="#">&larr; Back to Home</a>
+    <div class="logo-row" style="margin-top:1rem;">${logoIcon(40)}<div class="login-logo brand grad-text">nourishED</div></div>
+    <p class="login-sub1">District-Level Digital Wellness Platform</p>
+    <p class="login-sub2">AI-Powered Nutrition Curriculum · Grades K&ndash;12</p>
+    <button class="btn btn-ghost btn-sm" style="margin-bottom:1.6rem;" onclick="showCurriculum()">📚 View Curriculum Overview</button>
+    <div class="role-panel">
+      <h2>Select Your Role to Continue</h2>
+      <p class="lede">Choose a demo account to explore the nourishED platform</p>
+      <div class="role-grid">${cards}</div>
+    </div>
+  </div>`;
+}
+
+/* ---------------------------------------------------------
+   CURRICULUM OVERVIEW (public marketing page)
+--------------------------------------------------------- */
+const CURRICULUM_BANDS = [
+  {key:'k', label:'Kindergarten', badge:'Pre-Elementary',
+    desc:'Age-appropriate nutrition lessons designed for pre-elementary students',
+    lessons:[{title:'Hello, Healthy Foods!', module:'My First Foods', duration:'15 min',
+      desc:"A playful introduction to fruits, vegetables, and what makes food good for our bodies"}]},
+  {key:'g13', label:'Grades 1-3', badge:null, desc:null,
+    lessons:[
+      {title:'Food Groups Rainbow', module:'Nutrition Basics', grade:'Grade 1'},
+      {title:'MyPlate Adventure', module:'Balanced Nutrition', grade:'Grade 2'},
+      {title:'Sugar Detectives', module:'Food Labels', grade:'Grade 3'},
+    ]},
+  {key:'g46', label:'Grades 4-6', badge:null, desc:null,
+    lessons:[{title:'Energy Balance & Physical Activity', module:'Energy Balance', grade:'Grade 6'}]},
+  {key:'g79', label:'Grades 7-9', badge:null, desc:null, lessons:[]},
+  {key:'g1012', label:'Grades 10-12', badge:null, desc:null, lessons:[]},
+];
+
+function curriculumPage(){
+  const band = CURRICULUM_BANDS.find(b=>b.key===S.curBand);
+  const tabs = CURRICULUM_BANDS.map(b=>`<button class="band-tab ${b.key===band.key?'active':''}" onclick="setCurBand('${b.key}')">${b.label}</button>`).join('');
+
+  let lessonHtml;
+  if(band.lessons.length === 0){
+    lessonHtml = `<div class="card empty-state">
+      <p style="font-weight:700; color:var(--ink);">No lessons captured yet for ${band.label}</p>
+      <p>This band wasn't in the screenshots reviewed so far — add lessons here once they're shared.</p>
+    </div>`;
+  } else {
+    lessonHtml = band.lessons.map(l=>`
+      <div class="cur-lesson-card">
+        <div class="cur-lesson-meta"><span>${l.grade || band.label}</span>${l.duration ? `<span>⏱ ${l.duration}</span>` : ''}</div>
+        <p style="font-weight:700; margin:0 0 .3rem;">${l.title}</p>
+        ${l.desc ? `<p class="section-sub" style="margin:0;">${l.desc}</p>` : ''}
+        <span class="cur-module-tag">📘 Module: ${l.module}</span>
+      </div>`).join('');
+  }
+
+  return `
+  <div id="curriculum-screen">
+    <div class="cur-header">
+      <div class="logo-row">${logoIcon(30)}<span class="logo-text-compact">nourishED</span></div>
+      <button class="login-back" onclick="backToHomeFromCur()">&larr; Back to Home</button>
+    </div>
+    <div class="cur-hero">
+      <h1>Curriculum Overview</h1>
+      <p>Comprehensive nutrition education from Kindergarten through grade 12, designed to build lifelong wellness habits through adaptive, age-appropriate content</p>
+    </div>
+    <div class="cur-body">
+      <div class="band-tabs">${tabs}</div>
+      <div class="card" style="margin-bottom:1.2rem;">
+        ${band.badge ? `<span class="band-badge">${band.badge}</span>` : ''}
+        <h3 style="margin:.2rem 0 .3rem;">${band.label}</h3>
+        ${band.desc ? `<p class="section-sub" style="margin:0;">${band.desc}</p>` : `<p class="section-sub" style="margin:0; color:#94a3b8;">Band description not yet captured from the source material.</p>`}
+      </div>
+      ${lessonHtml}
+    </div>
+  </div>`;
+}
+
+/* ---------------------------------------------------------
+   APP SHELL
+--------------------------------------------------------- */
+function appShell(){
+  const roleInfo = ROLES.find(r => r.key === S.role);
+  let body = '';
+  if(S.role === 'student') body = renderStudent();
+  if(S.role === 'teacher') body = renderTeacher();
+  if(S.role === 'parent') body = renderParent();
+  if(S.role === 'schoolAdmin') body = renderSchoolAdmin();
+  if(S.role === 'districtAdmin') body = renderDistrictAdmin();
+
+  return `
+  <div id="topbar">
+    <div class="topbar-left">
+      <span class="logo-row">${logoIcon(28)}<span class="logo-text-compact" style="font-size:1.05rem;">nourishED</span></span>
+      <span class="sep">|</span>
+      <span class="who">${roleInfo.name}</span>
+    </div>
+    <button class="btn btn-ghost btn-sm" onclick="logout()">⎋ Logout</button>
+  </div>
+  <div id="content">${body}</div>`;
+}
+
+/* ---------------------------------------------------------
+   STUDENT
+--------------------------------------------------------- */
+function renderStudent(){
+  if(S.studentGame) return renderGameScreen();
+
+  return `
+  <div class="stat-grid">
+    ${statCard('Lessons Completed','3','#16a34a')}
+    ${statCard('Average Score','92%','#3b82f6')}
+    ${statCard('Time Learning','93m','#8b5cf6')}
+    ${statCard('Stars Earned','9 ⭐','#f59e0b')}
+  </div>
+
+  <div class="card" style="margin-bottom:1.2rem;">
+    <p class="section-title">🎯 Your Progress This Year</p>
+    <div class="progress-row"><span>Overall Completion</span><span>100%</span></div>
+    <div class="progress-track"><div class="progress-fill" style="width:100%;"></div></div>
+    <p class="section-sub" style="margin-top:.5rem;">3 of 3 lessons completed</p>
+  </div>
+
+  <div class="card" style="margin-bottom:1.2rem;">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+      <div>
+        <p class="section-title">🎮 Practice &amp; Play Games</p>
+        <p class="section-sub">Reinforce what you've learned with fun, interactive games!</p>
+      </div>
+    </div>
+    <div class="game-grid">
+      <div class="game-tile" onclick="openGame('fs')"><div class="emoji">🎯</div><div class="gname">Food Sorting</div><div class="gdesc">Drag &amp; drop foods</div></div>
+      <div class="game-tile" onclick="openGame('tq')"><div class="emoji">🧠</div><div class="gname">Trivia Quiz</div><div class="gdesc">Test your knowledge</div></div>
+      <div class="game-tile" onclick="openGame('mp')"><div class="emoji">🍽️</div><div class="gname">MyPlate Builder</div><div class="gdesc">Create balanced meals</div></div>
+      <div class="game-tile" onclick="openGame('sm')"><div class="emoji">⚡</div><div class="gname">Speed Match</div><div class="gdesc">Race against time</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:.8rem;">
+      <div>
+        <p class="section-title">🥗 Nutrition Guide</p>
+        <p class="section-sub" style="margin-bottom:0;">Explore healthy foods, their benefits, and learn which foods to limit</p>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="alert('This section was mentioned in the prototype but its detail screens haven\\'t been captured yet.')">Explore Now</button>
+    </div>
+  </div>`;
+}
+
+function statCard(label, val, color){
+  return `<div class="stat-card"><div class="lbl">${label}</div><div class="val" style="color:${color}">${val}</div></div>`;
+}
+
+function openGame(key){
+  S.studentGame = key;
+  if(key==='fs' && !S.fs) S.fs = {remaining: FOOD_SORT_ITEMS.map(i=>i.id), placed:{}, selected:null, wrongZone:null, score:0};
+  if(key==='tq' && !S.tq) S.tq = {idx:0, correct:0, selected:null, answered:false};
+  if(key==='mp' && !S.mp) S.mp = {plate:[]};
+  if(key==='sm' && !S.sm) S.sm = {started:false, done:false, timeLeft:60, matched:[], selFood:null, selBenefit:null, wrong:false, foodOrder:shuffle(SPEED_PAIRS), benefitOrder:shuffle(SPEED_PAIRS)};
+  render();
+}
+function backToGames(){ stopSpeedMatchTimer(); S.studentGame=null; render(); }
+function shuffle(arr){ return [...arr].sort(()=>Math.random()-0.5); }
+
+function renderGameScreen(){
+  const titles = {fs:'Food Sorting', tq:'Trivia Quiz', mp:'MyPlate Builder', sm:'Speed Match'};
+  let inner = '';
+  if(S.studentGame==='fs') inner = renderFoodSorting();
+  if(S.studentGame==='tq') inner = renderTrivia();
+  if(S.studentGame==='mp') inner = renderMyPlate();
+  if(S.studentGame==='sm') inner = renderSpeedMatch();
+  return `
+    <button class="btn btn-ghost btn-sm" style="margin-bottom:1rem;" onclick="backToGames()">&larr; Back to Games</button>
+    <div class="card">
+      <p class="section-title">${titles[S.studentGame]}</p>
+      ${inner}
+    </div>`;
+}
+
+/* --- Food Sorting --- */
+function renderFoodSorting(){
+  const fs = S.fs;
+  const tray = fs.remaining.map(id=>{
+    const item = FOOD_SORT_ITEMS.find(i=>i.id===id);
+    return `<div class="chip ${fs.selected===id?'selected':''}" draggable="true"
+      ondragstart="fsDragStart(event,'${id}')" onclick="fsSelect('${id}')">${item.emoji} ${item.name}</div>`;
+  }).join('') || '<span style="color:var(--muted); font-size:.85rem;">All foods sorted!</span>';
+
+  const zones = GROUPS.map(g=>{
+    const placedItems = (fs.placed[g]||[]).map(id=>{
+      const item = FOOD_SORT_ITEMS.find(i=>i.id===id);
+      return `<div class="zone-item">${item.emoji} ${item.name}</div>`;
+    }).join('');
+    return `<div class="zone ${fs.wrongZone===g?'wrong':''}" ondragover="event.preventDefault()" ondrop="fsDrop(event,'${g}')" onclick="fsPlace('${g}')">
+      <h4>${g}</h4>${placedItems}
+    </div>`;
+  }).join('');
+
+  const done = fs.remaining.length===0;
+  return `
+    <p class="section-sub">Drag each food into its correct food group category</p>
+    <div style="text-align:right; font-weight:700; color:var(--g3); margin-bottom:.4rem;">Score: ${fs.score}</div>
+    <p style="font-weight:600; font-size:.88rem; margin-bottom:.4rem;">Drag these foods to the correct group:</p>
+    <div class="tray">${tray}</div>
+    <div class="zones">${zones}</div>
+    ${done ? `<div class="center-msg"><div class="big-emoji">🎉</div><p style="font-weight:700;">All foods sorted! Score: ${fs.score}/10</p>
+      <button class="btn btn-primary btn-sm" onclick="S.fs=null; openGame('fs')">Play Again</button></div>` :
+      `<p style="font-size:.78rem; color:var(--muted); margin-top:.8rem;">💡 Tip: drag, or tap a food then tap the category it belongs to.</p>`}
+  `;
+}
+function fsDragStart(e,id){ e.dataTransfer.setData('text/plain', id); }
+function fsSelect(id){ S.fs.selected = (S.fs.selected===id) ? null : id; render(); }
+function fsDrop(e,group){ const id = e.dataTransfer.getData('text/plain'); fsTryPlace(id, group); }
+function fsPlace(group){ if(S.fs.selected) fsTryPlace(S.fs.selected, group); }
+function fsTryPlace(id, group){
+  const fs = S.fs;
+  const item = FOOD_SORT_ITEMS.find(i=>i.id===id);
+  if(!item || !fs.remaining.includes(id)) return;
+  if(item.group === group){
+    fs.remaining = fs.remaining.filter(x=>x!==id);
+    fs.placed[group] = fs.placed[group] || [];
+    fs.placed[group].push(id);
+    fs.score++;
+    fs.selected = null;
+    render();
+  } else {
+    fs.wrongZone = group;
+    render();
+    setTimeout(()=>{ fs.wrongZone=null; render(); }, 600);
+  }
+}
+
+/* --- Trivia --- */
+function renderTrivia(){
+  const tq = S.tq;
+  if(tq.idx >= TRIVIA_QUESTIONS.length){
+    return `<div class="center-msg"><div class="big-emoji">🏆</div>
+      <p style="font-weight:700; font-size:1.1rem;">You got ${tq.correct}/${TRIVIA_QUESTIONS.length} correct!</p>
+      <button class="btn btn-primary btn-sm" onclick="S.tq=null; openGame('tq')">Play Again</button></div>`;
+  }
+  const q = TRIVIA_QUESTIONS[tq.idx];
+  const opts = q.options.map(opt=>{
+    let cls='opt';
+    if(tq.answered){
+      if(opt===q.answer) cls+=' correct';
+      else if(opt===tq.selected) cls+=' incorrect';
+    }
+    return `<button class="${cls}" ${tq.answered?'disabled':''} onclick="tqAnswer('${opt}')">${opt}</button>`;
+  }).join('');
+  return `
+    <div style="display:flex; justify-content:space-between; font-size:.85rem; color:var(--muted); margin-bottom:.5rem;">
+      <span>Nutrition Trivia Challenge</span><span>Question ${tq.idx+1}/${TRIVIA_QUESTIONS.length}</span>
+    </div>
+    <div class="progress-row"><span>Progress</span><span>${tq.correct} correct</span></div>
+    <div class="progress-track" style="margin-bottom:1rem;"><div class="progress-fill" style="width:${(tq.idx/TRIVIA_QUESTIONS.length)*100}%;"></div></div>
+    <div class="quiz-box">
+      <p style="font-weight:700; margin-top:0;">${q.q}</p>
+      ${opts}
+      ${tq.answered ? `<div class="feedback ${tq.selected===q.answer?'ok':'bad'}">
+        <strong>${tq.selected===q.answer?'✅ Correct!':'❌ Not quite.'}</strong><br>${q.explain}
+      </div>
+      <button class="btn btn-primary btn-sm" style="margin-top:.9rem;" onclick="tqNext()">${tq.idx===TRIVIA_QUESTIONS.length-1?'See Results':'Next Question'}</button>` : ''}
+    </div>`;
+}
+function tqAnswer(opt){
+  if(S.tq.answered) return;
+  S.tq.selected = opt;
+  S.tq.answered = true;
+  if(opt === TRIVIA_QUESTIONS[S.tq.idx].answer) S.tq.correct++;
+  render();
+}
+function tqNext(){ S.tq.idx++; S.tq.selected=null; S.tq.answered=false; render(); }
+
+/* --- MyPlate Builder --- */
+function renderMyPlate(){
+  const mp = S.mp;
+  const counts = {}; PLATE_GOALS.forEach(g=>counts[g]=0);
+  mp.plate.forEach(id=>{ const it=PLATE_ITEMS.find(p=>p.id===id); if(it) counts[it.group]++; });
+  const allDone = PLATE_GOALS.every(g=>counts[g]>=1);
+
+  const goalChips = PLATE_GOALS.map(g=>`<span class="goal-chip ${counts[g]>=1?'done':''}">${g}: ${Math.min(counts[g],1)}/1</span>`).join('');
+  const plateContents = mp.plate.length ? mp.plate.map(id=>{ const it=PLATE_ITEMS.find(p=>p.id===id); return `<span class="zone-item">${it.emoji} ${it.name}</span>`; }).join('') : 'Click foods below to add them to your plate';
+  const picks = PLATE_ITEMS.map(it=>`<div class="food-pick" onclick="mpAdd('${it.id}')">${it.emoji} ${it.name}<small>${it.group}</small></div>`).join('');
+
+  return `
+    <p class="section-sub">Create a balanced meal following MyPlate guidelines</p>
+    <p style="font-weight:600; font-size:.88rem; margin-bottom:.4rem;">🎯 Your Goal:</p>
+    <div class="goal-row">${goalChips}</div>
+    <p style="font-weight:600; font-size:.88rem;">🍽️ Your Plate</p>
+    <div class="plate-zone">${plateContents}</div>
+    <p style="font-weight:600; font-size:.88rem; margin-top:1rem;">Click to add foods to your plate:</p>
+    <div class="food-pick-grid">${picks}</div>
+    ${allDone ? `<div class="center-msg"><div class="big-emoji">🎉</div><p style="font-weight:700;">Balanced plate complete!</p></div>` : ''}
+    <button class="btn btn-ghost btn-sm" style="margin-top:1rem;" onclick="S.mp={plate:[]}; render();">Reset Plate</button>
+  `;
+}
+function mpAdd(id){ S.mp.plate.push(id); render(); }
+
+/* --- Speed Match --- */
+function renderSpeedMatch(){
+  const sm = S.sm;
+  if(!sm.started && !sm.done){
+    return `
+      <p class="section-sub">Match foods with their health benefits as fast as you can!</p>
+      <div class="center-msg">
+        <div class="big-emoji">⚡</div>
+        <p style="font-weight:700; font-size:1.1rem;">Ready to Play?</p>
+        <p style="color:var(--muted); font-size:.88rem;">You have 60 seconds to match as many foods with their benefits as possible!</p>
+        <div style="display:flex; gap:.8rem; justify-content:center; margin:1.2rem 0;">
+          ${miniStat('5','Total Pairs')} ${miniStat('60s','Time Limit')} ${miniStat('⚡','Fast Paced')}
+        </div>
+        <button class="btn btn-primary" onclick="smStart()">⚡ Start Game</button>
+      </div>`;
+  }
+  if(sm.done){
+    return `<div class="center-msg"><div class="big-emoji">${sm.matched.length===SPEED_PAIRS.length?'🏆':'⏰'}</div>
+      <p style="font-weight:700; font-size:1.1rem;">${sm.matched.length===SPEED_PAIRS.length ? 'You matched all pairs!' : "Time's up!"}</p>
+      <p style="color:var(--muted);">You matched ${sm.matched.length}/${SPEED_PAIRS.length} pairs.</p>
+      <button class="btn btn-primary btn-sm" onclick="S.sm=null; openGame('sm')">Play Again</button></div>`;
+  }
+  const foodCol = sm.foodOrder.map(p=>{
+    let cls='sm-card';
+    if(sm.matched.includes(p.id)) cls+=' matched';
+    else if(sm.selFood===p.id) cls+=' selected';
+    if(sm.wrong && sm.selFood===p.id) cls+=' wrong';
+    return `<div class="${cls}" onclick="smPickFood('${p.id}')">${p.food}</div>`;
+  }).join('');
+  const benCol = sm.benefitOrder.map(p=>{
+    let cls='sm-card';
+    if(sm.matched.includes(p.id)) cls+=' matched';
+    else if(sm.selBenefit===p.id) cls+=' selected';
+    if(sm.wrong && sm.selBenefit===p.id) cls+=' wrong';
+    return `<div class="${cls}" onclick="smPickBenefit('${p.id}')">${p.benefit}</div>`;
+  }).join('');
+  return `
+    <div style="display:flex; justify-content:space-between; margin-bottom:.6rem;">
+      <span style="font-weight:700; color:var(--g3);">⏱ ${sm.timeLeft}s</span>
+      <span style="font-weight:700;">Matched: ${sm.matched.length}/${SPEED_PAIRS.length}</span>
+    </div>
+    <div class="sm-cols"><div>${foodCol}</div><div>${benCol}</div></div>`;
+}
+function miniStat(val,label){ return `<div style="background:var(--soft); border-radius:10px; padding:.6rem 1rem; min-width:90px;"><div style="font-weight:700; color:var(--g3);">${val}</div><div style="font-size:.72rem; color:var(--muted);">${label}</div></div>`; }
+function stopSpeedMatchTimer(){ if(smTimer){ clearInterval(smTimer); smTimer=null; } }
+function smStart(){
+  S.sm.started = true;
+  S.sm.timeLeft = 60;
+  stopSpeedMatchTimer();
+  smTimer = setInterval(()=>{
+    S.sm.timeLeft--;
+    if(S.sm.timeLeft<=0){ S.sm.done=true; S.sm.started=false; stopSpeedMatchTimer(); }
+    render();
+  }, 1000);
+  render();
+}
+function smPickFood(id){ if(S.sm.matched.includes(id)) return; S.sm.selFood=id; smCheck(); }
+function smPickBenefit(id){ if(S.sm.matched.includes(id)) return; S.sm.selBenefit=id; smCheck(); }
+function smCheck(){
+  const sm = S.sm;
+  if(sm.selFood && sm.selBenefit){
+    if(sm.selFood === sm.selBenefit){
+      sm.matched.push(sm.selFood);
+      sm.selFood=null; sm.selBenefit=null; sm.wrong=false;
+      if(sm.matched.length === SPEED_PAIRS.length){ sm.done=true; sm.started=false; stopSpeedMatchTimer(); }
+      render();
+    } else {
+      sm.wrong=true;
+      render();
+      setTimeout(()=>{ sm.selFood=null; sm.selBenefit=null; sm.wrong=false; render(); }, 550);
+    }
+  } else render();
+}
+
+/* ---------------------------------------------------------
+   TEACHER
+--------------------------------------------------------- */
+function setTeacherTab(t){ S.teacherTab=t; S.expandedStudent=null; render(); }
+function renderTeacher(){
+  return `
+  <div class="stat-grid">
+    ${statCard('Total Students','8','#16a34a')}
+    ${statCard('Active Classes','2','#3b82f6')}
+    ${statCard('Avg Class Score','92%','#8b5cf6')}
+    ${statCard('Completion Rate','76%','#f59e0b')}
+  </div>
+  <div class="tabs">
+    ${tabBtn('overview','Overview', S.teacherTab, 'setTeacherTab')}
+    ${tabBtn('progress','Student Progress', S.teacherTab, 'setTeacherTab')}
+    ${tabBtn('lessons','Lesson Tracking', S.teacherTab, 'setTeacherTab')}
+    ${tabBtn('ai','AI Insights', S.teacherTab, 'setTeacherTab')}
+  </div>
+  ${S.teacherTab==='overview' ? teacherOverview() : ''}
+  ${S.teacherTab==='progress' ? teacherProgress() : ''}
+  ${S.teacherTab==='lessons' ? teacherLessons() : ''}
+  ${S.teacherTab==='ai' ? teacherAI() : ''}
+  `;
+}
+function tabBtn(key,label,active,fn){ return `<button class="tab-btn ${active===key?'active':''}" onclick="${fn}('${key}')">${label}</button>`; }
+
+function teacherOverview(){
+  const eng=[80,82,84,85], comp=[75,77,79,80];
+  return `
+  <div class="card" style="margin-bottom:1rem;">
+    <p class="section-title">📈 Class Engagement &amp; Completion Trends</p>
+    <p class="section-sub">Track how your students are engaging with the curriculum</p>
+    ${lineChart(eng,comp,['Week 1','Week 2','Week 3','Week 4'])}
+    <div class="legend"><span><i class="dot" style="background:#16a34a;"></i>Engagement %</span><span><i class="dot" style="background:#3b82f6;"></i>Completion %</span></div>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <p class="section-title">My Classes</p>
+      ${classRow('5th Grade - Room 203','5 students')}
+      ${classRow('5th Grade - Room 204','3 students')}
+    </div>
+    <div class="card">
+      <p class="section-title">Recent Alerts</p>
+      <div class="alert-box alert-warn">⚠️ <div><strong>2 students behind schedule</strong><br>Noah P. and 1 other need attention</div></div>
+      <div class="alert-box alert-good">✅ <div><strong>Sophia K. completed all lessons</strong><br>With an average score of 95%</div></div>
+    </div>
+  </div>`;
+}
+function classRow(name,sub){
+  return `<div style="display:flex; justify-content:space-between; align-items:center; border:1px solid var(--border); border-radius:12px; padding:.7rem 1rem; margin-bottom:.6rem;">
+    <div><strong style="font-size:.9rem;">${name}</strong><br><span style="color:var(--muted); font-size:.78rem;">${sub}</span></div>
+    <button class="btn btn-ghost btn-sm" onclick="alert('Class roster drill-down wasn\\'t captured in the screenshots reviewed.')">View</button>
+  </div>`;
+}
+function lineChart(seriesA, seriesB, labels){
+  const W=560,H=190,padL=34,padR=10,padT=10,padB=24;
+  const innerW=W-padL-padR, innerH=H-padT-padB;
+  const n=labels.length;
+  const x=i=> padL + (innerW/(n-1))*i;
+  const y=v=> padT + innerH - (v/100)*innerH;
+  const pathOf = s => s.map((v,i)=> (i===0?'M':'L')+x(i)+','+y(v)).join(' ');
+  const grid=[0,25,50,75,100].map(v=>`<line x1="${padL}" x2="${W-padR}" y1="${y(v)}" y2="${y(v)}" stroke="#eef2f1" stroke-width="1"/><text x="2" y="${y(v)+4}" font-size="9" fill="#94a3b8">${v}</text>`).join('');
+  const labelsSvg = labels.map((l,i)=>`<text x="${x(i)}" y="${H-4}" font-size="9" fill="#94a3b8" text-anchor="middle">${l}</text>`).join('');
+  const dotsA = seriesA.map((v,i)=>`<circle cx="${x(i)}" cy="${y(v)}" r="3" fill="#16a34a"/>`).join('');
+  const dotsB = seriesB.map((v,i)=>`<circle cx="${x(i)}" cy="${y(v)}" r="3" fill="#3b82f6"/>`).join('');
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%; height:auto;">
+    ${grid}${labelsSvg}
+    <path d="${pathOf(seriesA)}" fill="none" stroke="#16a34a" stroke-width="2.5"/>
+    <path d="${pathOf(seriesB)}" fill="none" stroke="#3b82f6" stroke-width="2.5"/>
+    ${dotsA}${dotsB}
+  </svg>`;
+}
+
+function teacherProgress(){
+  const rows = STUDENTS.map((s,i)=>{
+    const expanded = S.expandedStudent===i;
+    return `<tr>
+      <td>${s.name}</td><td>${s.lessons}</td>
+      <td><strong>${s.score}%</strong></td><td>${s.last}</td>
+      <td><span class="status-pill ${s.status==='On Track'?'status-ok':'status-needs'}">${s.status}</span></td>
+      <td><button class="btn btn-ghost btn-sm" onclick="toggleStudent(${i})">${expanded?'Hide':'View Details'}</button></td>
+    </tr>
+    ${expanded ? `<tr class="detail-row"><td colspan="6">Strongest area: <strong>${s.strength}</strong> &nbsp;·&nbsp; Could use review: <strong>${s.review}</strong></td></tr>` : ''}`;
+  }).join('');
+  return `<div class="card">
+    <p class="section-title">Student Progress Tracking</p>
+    <p class="section-sub">Monitor individual student performance and engagement</p>
+    <table class="tbl"><thead><tr><th>Student Name</th><th>Lessons Completed</th><th>Avg Score</th><th>Last Active</th><th>Status</th><th>Action</th></tr></thead>
+    <tbody>${rows}</tbody></table>
+  </div>`;
+}
+function toggleStudent(i){ S.expandedStudent = S.expandedStudent===i ? null : i; render(); }
+
+function teacherLessons(){
+  const rows = LESSONS.map(l=>`
+    <div class="lesson-row">
+      <div class="top"><strong>${l.title}</strong><span>${l.pct!==null ? l.pct+'% complete' : '—'}</span></div>
+      <div class="meta">${l.grade} · ${l.unit}${l.duration ? ' · ⏱ '+l.duration : ''}</div>
+      <div class="progress-track" style="margin-top:.3rem;"><div class="progress-fill" style="width:${l.pct||0}%;"></div></div>
+    </div>`).join('');
+  return `<div class="card">
+    <p class="section-title">Lesson Analytics</p>
+    <p class="section-sub">See which lessons your students are completing</p>
+    ${rows}
+    <p style="font-size:.78rem; color:var(--muted); margin-top:.6rem;">Grades 4–5 lesson detail wasn't captured in the source screenshots yet.</p>
+  </div>`;
+}
+
+function teacherAI(){
+  const cards = AI_INSIGHTS.map(i=>`<div class="insight ${i.type}"><h4>${i.title}</h4><p>${i.body}</p></div>`).join('');
+  return `<div class="card">
+    <p class="section-title">AI-Powered Recommendations</p>
+    <p class="section-sub">Personalized insights to help your students succeed</p>
+    ${cards}
+  </div>`;
+}
+
+/* ---------------------------------------------------------
+   PARENT
+--------------------------------------------------------- */
+function setParentTab(t){ S.parentTab=t; render(); }
+function renderParent(){
+  return `
+  <h2 style="margin:.2rem 0 .9rem; font-size:1.3rem;">Emma's Nutrition Learning Journey</h2>
+  <p class="section-sub" style="margin-top:-.6rem;">Track your child's progress and support their wellness education</p>
+  <div class="stat-grid">
+    ${statCard('Overall Score','92%','#16a34a')}
+    ${statCard('Lessons Completed','4/6','#3b82f6')}
+    ${statCard('This Week','85m','#8b5cf6')}
+    ${statCard('Learning Streak','5 days','#f59e0b')}
+  </div>
+  <div class="card" style="margin-bottom:1.2rem;">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:.5rem;">
+      <div><p class="section-title">📘 Daily Learning Summary</p><p class="section-sub" style="margin-bottom:0;">See what Emma learned and is currently learning today</p></div>
+      <span class="btn btn-primary btn-sm" style="cursor:default;">Today, March 23</span>
+    </div>
+    <div class="daily-card learning" style="margin-top:1rem;">
+      <span class="badge badge-blue">Currently Learning</span><span style="color:var(--muted); font-size:.8rem;">Started at 3:45 PM</span>
+      <p style="font-weight:700; margin:.5rem 0 .2rem;">Energy Balance &amp; Physical Activity</p>
+      <p class="section-sub" style="margin-bottom:.4rem;">Understanding how food provides energy and the importance of staying active</p>
+      <div class="progress-row"><span>Lesson Progress</span><span>65%</span></div>
+      <div class="progress-track"><div class="progress-fill" style="width:65%;"></div></div>
+      <div class="takeaway-box"><strong>🔑 Key Learnings So Far:</strong>
+        <ul><li>Calories are units of energy from food</li><li>Different activities burn different amounts of energy</li><li>Balance between food intake and physical activity</li></ul>
+      </div>
+      <span style="color:var(--muted); font-size:.78rem;">⏱ 18 minutes spent</span>
+    </div>
+    <div class="daily-card done">
+      <span class="badge badge-green">Completed Today</span><span class="badge badge-gray">Score: 88%</span><span style="color:var(--muted); font-size:.8rem;">Finished at 3:30 PM</span>
+      <p style="font-weight:700; margin:.5rem 0 .2rem;">Healthy Snack Choices</p>
+      <div class="takeaway-box"><strong>✅ What Emma Learned:</strong>
+        <ul><li>Identified nutrient-dense snack options</li><li>Learned to read nutrition labels</li><li>Practiced portion control</li></ul>
+      </div>
+      <span style="color:var(--muted); font-size:.78rem;">⏱ 15 minutes</span>
+    </div>
+    <p style="text-align:center; font-size:.82rem; color:var(--muted); margin-top:.8rem;">Want to see what Emma learned on previous days? Check the Recent Activity tab below.</p>
+  </div>
+  <div class="tabs">
+    ${tabBtn('progress','Progress', S.parentTab, 'setParentTab')}
+    ${tabBtn('skills','Skills & Topics', S.parentTab, 'setParentTab')}
+    ${tabBtn('activity','Recent Activity', S.parentTab, 'setParentTab')}
+    ${tabBtn('resources','Parent Resources', S.parentTab, 'setParentTab')}
+    ${tabBtn('benefits','Food Benefits Guide', S.parentTab, 'setParentTab')}
+  </div>
+  ${S.parentTab==='progress' ? parentProgress() : ''}
+  ${S.parentTab==='skills' ? parentSkills() : ''}
+  ${S.parentTab==='activity' ? emptyTab('Recent Activity') : ''}
+  ${S.parentTab==='resources' ? emptyTab('Parent Resources') : ''}
+  ${S.parentTab==='benefits' ? emptyTab('Food Benefits Guide') : ''}
+  `;
+}
+function parentProgress(){
+  return `<div class="card">
+    <p class="section-title">Grade 5 Curriculum Progress</p>
+    <p class="section-sub">Tracking completion of age-appropriate nutrition lessons</p>
+    <div class="progress-row"><span>Overall Completion</span><span>67%</span></div>
+    <div class="progress-track"><div class="progress-fill" style="width:67%;"></div></div>
+    <p class="section-sub" style="margin-top:.6rem; margin-bottom:0;">Emma is making great progress! They've completed 4 out of 6 lessons this semester.</p>
+  </div>`;
+}
+function parentSkills(){
+  const mastery = MASTERY.map(m=>`<div class="mastery-row">
+    <div class="top"><span>${m.topic}</span><span>${m.pct}% mastery</span></div>
+    <div class="progress-track"><div class="progress-fill" style="width:${m.pct}%;"></div></div>
+    ${m.note ? `<div class="mastery-note">💡 ${m.note}</div>` : ''}
+  </div>`).join('');
+  const maxMin = Math.max(...WEEK_ACTIVITY.map(d=>d.min),1);
+  const bars = WEEK_ACTIVITY.map(d=>`
+    <div class="bar-group">
+      <div class="bar-pair">
+        <div class="bar min" style="height:${(d.min/30)*100}%;"></div>
+        <div class="bar score" style="height:${d.score}%;"></div>
+      </div>
+      <div class="bar-day">${d.day}</div>
+    </div>`).join('');
+  return `
+  <div class="card" style="margin-bottom:1rem;">
+    <p class="section-title">Topic Mastery</p>
+    <p class="section-sub">Understanding and retention across nutrition topics</p>
+    ${mastery}
+    <div class="card" style="background:var(--blue-soft); border:none; margin-top:1rem;">
+      <strong style="font-size:.88rem;">Strengths</strong>
+      <ul style="margin:.4rem 0 0; padding-left:1.1rem; font-size:.85rem;">
+        <li>Excellent understanding of food groups and balanced meals</li>
+        <li>Strong grasp of how digestion works</li>
+      </ul>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:1rem;">
+    <p class="section-title">This Week's Learning Activity</p>
+    <p class="section-sub">Daily engagement and performance</p>
+    <div class="bars">${bars}</div>
+    <div class="legend"><span><i class="dot" style="background:#10b981;"></i>Minutes Spent</span><span><i class="dot" style="background:#3b82f6;"></i>Score %</span></div>
+  </div>
+  <div class="card">
+    <p class="section-title">Recent Achievements</p>
+    <div class="achievement" style="background:var(--amber-soft);">🏅 <div><strong>Perfect Score!</strong><br><span style="font-size:.85rem;">Scored 95% on Food Groups Rainbow lesson · Feb 20, 2026</span></div></div>
+    <div class="achievement" style="background:var(--green-soft);">🔥 <div><strong>5-Day Streak!</strong><br><span style="font-size:.85rem;">Logged in 5 days in a row · Feb 25, 2026</span></div></div>
+  </div>`;
+}
+function emptyTab(name){
+  return `<div class="card empty-state">
+    <p style="font-weight:700; color:var(--ink); margin-bottom:.3rem;">${name} isn't in this preview yet</p>
+    <p>This screen wasn't part of the screenshots reviewed so far — add it here once it's shared.</p>
+  </div>`;
+}
+
+/* ---------------------------------------------------------
+   SCHOOL / DISTRICT ADMIN (speculative — flagged in UI)
+--------------------------------------------------------- */
+function renderSchoolAdmin(){
+  return `
+  <span class="pill pill-preview">Preview — inferred from call notes, not yet confirmed by client screens</span>
+  <h2 style="margin:.8rem 0 1rem; font-size:1.2rem;">Lincoln Elementary — School Overview</h2>
+  <div class="stat-grid">
+    ${statCard('Total Students','142','#16a34a')}
+    ${statCard('Total Teachers','9','#3b82f6')}
+    ${statCard('Schoolwide Avg Score','89%','#8b5cf6')}
+    ${statCard('Completion Rate','71%','#f59e0b')}
+  </div>
+  <div class="card">
+    <p class="section-title">Engagement by Grade</p>
+    <p class="section-sub">Who's getting involved, broken out by grade level</p>
+    ${gradeBars()}
+  </div>`;
+}
+function gradeBars(){
+  const data=[{g:'K',v:88},{g:'1',v:82},{g:'2',v:79},{g:'3',v:74},{g:'4',v:70},{g:'5',v:91}];
+  return `<div class="bars" style="height:120px;">${data.map(d=>`
+    <div class="bar-group"><div class="bar-pair"><div class="bar min" style="height:${d.v}%; width:22px;"></div></div><div class="bar-day">Gr. ${d.g}</div></div>`).join('')}</div>`;
+}
+function renderDistrictAdmin(){
+  return `
+  <span class="pill pill-preview">Preview — inferred from call notes, not yet confirmed by client screens</span>
+  <h2 style="margin:.8rem 0 1rem; font-size:1.2rem;">District Overview</h2>
+  <div class="stat-grid">
+    ${statCard('Schools Enrolled','4','#16a34a')}
+    ${statCard('Total Students','612','#3b82f6')}
+    ${statCard('District Avg Score','86%','#8b5cf6')}
+    ${statCard('Completion Rate','69%','#f59e0b')}
+  </div>
+  <div class="card">
+    <p class="section-title">Performance by School</p>
+    <p class="section-sub">Compare engagement and outcomes across the district</p>
+    ${schoolBars()}
+  </div>`;
+}
+function schoolBars(){
+  const data=[{g:'Lincoln Elem.',v:89},{g:'Roosevelt Elem.',v:84},{g:'Jefferson MS',v:81},{g:'Washington MS',v:78}];
+  return `<div class="bars" style="height:120px;">${data.map(d=>`
+    <div class="bar-group"><div class="bar-pair"><div class="bar score" style="height:${d.v}%; width:30px;"></div></div><div class="bar-day">${d.g}</div></div>`).join('')}</div>`;
+}
+
+/* boot */
+render();
+</script>
+</body>
+</html>
